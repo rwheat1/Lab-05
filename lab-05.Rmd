@@ -64,6 +64,52 @@ mutate() is the function that will create a new variable while keeping our curre
 
 ### Exercise 6
 
+```{r create-distance-variable}
+
+#create haversine function
+
+haversine <- function(long1, lat1, long2, lat2, round = 3) {
+  # convert to radians
+  long1 = long1 * pi / 180
+  lat1  = lat1  * pi / 180
+  long2 = long2 * pi / 180
+  lat2  = lat2  * pi / 180
+  
+  R = 6371 # Earth mean radius in km
+  
+  a = sin((lat2 - lat1)/2)^2 + cos(lat1) * cos(lat2) * sin((long2 - long1)/2)^2
+  d = R * 2 * asin(sqrt(a))
+  
+  return( round(d,round) ) # distance in km
+}
+
+#create new variable "distance"
+
+dn_lq_ak <- dn_lq_ak %>%
+  mutate(distance = haversine(dn_lq_ak$longitude.x, dn_lq_ak$latitude.x, dn_lq_ak$longitude.y, dn_lq_ak$latitude.y))
+
+```
+
+### Exercise 7
+
+```{r min-distance}
+
+dn_lq_ak_mindist <- dn_lq_ak %>%
+  group_by(address.x) %>%
+  summarize(closest = min(distance))
+
+```
+
+### Exercise 8
+
+```{r min-distance-viz}
+
+dn_lq_ak_mindist %>% 
+  ggplot(aes(x = closest)) +
+  geom_density()
+
+```
+
 ...
 
 Add exercise headings as needed.
