@@ -1,7 +1,7 @@
 ---
 title: "Lab 04 - La Quinta is Spanish for next to Denny's, Pt. 2"
-author: "Insert your name here"
-date: "Insert date here"
+author: "Mr. Ryan Wheat"
+date: "2/21/23"
 output: github_document
 ---
 
@@ -14,33 +14,53 @@ library(dsbox)
 
 ```{r load-data, message = FALSE}
 states <- read_csv("data/states.csv")
+dn <- dennys
+lq <- laquinta
 ```
 
 ### Exercise 1
 
-Remove this text, and add your answer for Exercise 1 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+There are 3 Dennys locations in Alaska.
+
+```{r dennys-alaska}
+
+dn_ak <- dn %>%
+  filter(state == "AK")
+nrow(dn_ak)
+```
+
 
 ### Exercise 2
 
-Remove this text, and add your answer for Exercise 1 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+There are two La Quinta locations in Alaska.
+
+```{r laquinta-alaska}
+
+lq_ak <- lq %>%
+  filter(state == "AK")
+nrow(lq_ak)
+
+```
 
 ### Exercise 3
 
-...
+We need to calculate six distances, because there are six combinations of distances between each Denny's and La Quinta location in Alaska.
 
 ### Exercise 4
 
-...
+There are 6 observations in this dataframe, which match the six combinations we needed. The names of the variables seem to indicate which dataframe they come from -- .x = dn_ak; .y = lq_ak.
+
+```{r join-datasets}
+
+dn_lq_ak <- full_join(dn_ak, lq_ak, by = "state")
+dn_lq_ak
+
+```
+
 
 ### Exercise 5
 
-...
+mutate() is the function that will create a new variable while keeping our current variables I think?
 
 ### Exercise 6
 
