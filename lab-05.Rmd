@@ -151,12 +151,52 @@ dn_lq_nc_mindist <- dn_lq_nc %>%
 ggplot(data = dn_lq_nc_mindist,
        mapping = aes(x = closest)) +
   geom_density() + 
-  labs(x = "Distance to Closest La Quinta (km)", y = "Frequency")
+  labs(x = "Distance to Closest La Quinta (km)", y = "Frequency (%)")
 
 
 summary(dn_lq_nc_mindist, closest)
 describe(dn_lq_nc_mindist)
 
+```
+
+### Exercise 10
+
+Dennys and La Quinta are back to being very close to each other -- the average minimum distance between each location is 5.79 km, with an SD of 8.83 km. Additionally, these may be overestimates because the distribution of minimum distances has substantial positive skew.
+
+```{r min-distance-TX}
+
+#filtering for Dennys & La Quinta NC locations
+
+dn_tx <- dn %>%
+  filter(state == "TX")
+
+lq_tx <- lq %>%
+  filter(state == "TX")
+
+#join datasets so that both info is in one file
+
+dn_lq_tx <- full_join(dn_tx, lq_tx, by = "state")
+
+#create new variable "distance"
+
+dn_lq_tx <- dn_lq_tx %>%
+  mutate(distance = haversine(dn_lq_tx$longitude.x, dn_lq_tx$latitude.x, dn_lq_tx$longitude.y, dn_lq_tx$latitude.y))
+
+#calculate minimum distance for each location
+
+dn_lq_tx_mindist <- dn_lq_tx %>%
+  group_by(address.x) %>%
+  summarize(closest = min(distance))
+
+#visualize and summarize minimum distance between Dennys/La Quinta locations
+
+ggplot(data = dn_lq_tx_mindist,
+       mapping = aes(x = closest)) +
+  geom_density() + 
+  labs(x = "Distance to Closest La Quinta (km)", y = "Frequency (%)")
+
+summary(dn_lq_tx_mindist, closest)
+describe(dn_lq_tx_mindist)
 ```
 
 
