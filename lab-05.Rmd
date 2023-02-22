@@ -10,6 +10,7 @@ output: github_document
 ```{r load-packages, message = FALSE}
 library(tidyverse) 
 library(dsbox) 
+library(psych)
 ```
 
 ```{r load-data, message = FALSE}
@@ -102,13 +103,62 @@ dn_lq_ak_mindist <- dn_lq_ak %>%
 
 ### Exercise 8
 
+On average, the closest La Quinta to each Dennys location (in Alaska) is 4.41 km away. There is not much variance in these distances -- the SD is 2.1 km among these scores.
+
 ```{r min-distance-viz}
 
-dn_lq_ak_mindist %>% 
-  ggplot(aes(x = closest)) +
-  geom_density()
+ggplot(data = dn_lq_ak_mindist,
+       mapping = aes(x = address.x, y = closest)) +
+  geom_point(color = "red") + 
+  labs(x = "Dennys Location", y = "Distance to Closest La Quinta (km)")
+
+
+summary(dn_lq_ak_mindist, closest)
+describe(dn_lq_ak_mindist)
+```
+
+### Exercise 9
+
+Dennys and La Quinta locations are further from each other in NC -- on average, the closest distance between them is 65.44 km, and there is more variance in the distribution of these distances as well (SD = 53.42).
+
+```{r min-distance-NC}
+
+#filtering for Dennys & La Quinta NC locations
+
+dn_nc <- dn %>%
+  filter(state == "NC")
+
+lq_nc <- lq %>%
+  filter(state == "NC")
+
+#join datasets so that both info is in one file
+
+dn_lq_nc <- full_join(dn_nc, lq_nc, by = "state")
+
+#create new variable "distance"
+
+dn_lq_nc <- dn_lq_nc %>%
+  mutate(distance = haversine(dn_lq_nc$longitude.x, dn_lq_nc$latitude.x, dn_lq_nc$longitude.y, dn_lq_nc$latitude.y))
+
+#calculate minimum distance for each location
+
+dn_lq_nc_mindist <- dn_lq_nc %>%
+  group_by(address.x) %>%
+  summarize(closest = min(distance))
+
+#visualize and summarize minimum distance between Dennys/La Quinta locations
+
+ggplot(data = dn_lq_nc_mindist,
+       mapping = aes(x = closest)) +
+  geom_density() + 
+  labs(x = "Distance to Closest La Quinta (km)", y = "Frequency")
+
+
+summary(dn_lq_nc_mindist, closest)
+describe(dn_lq_nc_mindist)
 
 ```
+
 
 ...
 
