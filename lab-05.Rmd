@@ -199,7 +199,49 @@ summary(dn_lq_tx_mindist, closest)
 describe(dn_lq_tx_mindist)
 ```
 
+### Exercise 11
 
-...
+For California, Dennys and La Quintas do not appear to be as close to each other as they do for Texas, a state with a similar number of establishments (which serves as a sort of "control" here). 
 
-Add exercise headings as needed.
+The average minimum distance between establishments 22.08, and the SD = 33.05. Again, the distribution is heavily skewed, but descriptively, I'm not sure that it's any more skewed than Texas.
+
+```{r min-distance-CA}
+
+#filtering for Dennys & La Quinta CA locations
+
+dn_ca <- dn %>%
+  filter(state == "CA")
+
+lq_ca <- lq %>%
+  filter(state == "CA")
+
+#join datasets so that both info is in one file
+
+dn_lq_ca <- full_join(dn_ca, lq_ca, by = "state")
+
+#create new variable "distance"
+
+dn_lq_ca <- dn_lq_ca %>%
+  mutate(distance = haversine(dn_lq_ca$longitude.x, dn_lq_ca$latitude.x, dn_lq_ca$longitude.y, dn_lq_ca$latitude.y))
+
+#calculate minimum distance for each location
+
+dn_lq_ca_mindist <- dn_lq_ca %>%
+  group_by(address.x) %>%
+  summarize(closest = min(distance))
+
+#visualize and summarize minimum distance between Dennys/La Quinta locations
+
+ggplot(data = dn_lq_ca_mindist,
+       mapping = aes(x = closest)) +
+  geom_density() + 
+  labs(x = "Distance to Closest La Quinta (km)", y = "Frequency (%)")
+
+summary(dn_lq_ca_mindist, closest)
+describe(dn_lq_ca_mindist)
+```
+
+### Exercise 12
+
+Of the states I examined, the one that seems to most reflect Mitch Hedgberg's joke is Texas. While Alaska has marginally closer minimum distances, there are only 3 datapoints there to examine. In Texas, there 200 values to examine -- which gives me greater confidence when concluding that his joke is pretty accurate.
+

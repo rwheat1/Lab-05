@@ -182,7 +182,7 @@ dn_lq_nc_mindist <- dn_lq_nc %>%
 ggplot(data = dn_lq_nc_mindist,
        mapping = aes(x = closest)) +
   geom_density() + 
-  labs(x = "Distance to Closest La Quinta (km)", y = "Frequency")
+  labs(x = "Distance to Closest La Quinta (km)", y = "Frequency (%)")
 ```
 
 ![](lab-05_files/figure-gfm/min-distance-NC-1.png)<!-- -->
@@ -210,6 +210,141 @@ describe(dn_lq_nc_mindist)
     ## address.x*    -1.33  1.55
     ## closest       -0.35 10.10
 
-…
+### Exercise 10
 
-Add exercise headings as needed.
+Dennys and La Quinta are back to being very close to each other – the
+average minimum distance between each location is 5.79 km, with an SD of
+8.83 km. Additionally, these may be overestimates because the
+distribution of minimum distances has substantial positive skew.
+
+``` r
+#filtering for Dennys & La Quinta NC locations
+
+dn_tx <- dn %>%
+  filter(state == "TX")
+
+lq_tx <- lq %>%
+  filter(state == "TX")
+
+#join datasets so that both info is in one file
+
+dn_lq_tx <- full_join(dn_tx, lq_tx, by = "state")
+
+#create new variable "distance"
+
+dn_lq_tx <- dn_lq_tx %>%
+  mutate(distance = haversine(dn_lq_tx$longitude.x, dn_lq_tx$latitude.x, dn_lq_tx$longitude.y, dn_lq_tx$latitude.y))
+
+#calculate minimum distance for each location
+
+dn_lq_tx_mindist <- dn_lq_tx %>%
+  group_by(address.x) %>%
+  summarize(closest = min(distance))
+
+#visualize and summarize minimum distance between Dennys/La Quinta locations
+
+ggplot(data = dn_lq_tx_mindist,
+       mapping = aes(x = closest)) +
+  geom_density() + 
+  labs(x = "Distance to Closest La Quinta (km)", y = "Frequency (%)")
+```
+
+![](lab-05_files/figure-gfm/min-distance-TX-1.png)<!-- -->
+
+``` r
+summary(dn_lq_tx_mindist, closest)
+```
+
+    ##   address.x            closest       
+    ##  Length:200         Min.   : 0.0160  
+    ##  Class :character   1st Qu.: 0.7305  
+    ##  Mode  :character   Median : 3.3715  
+    ##                     Mean   : 5.7918  
+    ##                     3rd Qu.: 6.6303  
+    ##                     Max.   :60.5820
+
+``` r
+describe(dn_lq_tx_mindist)
+```
+
+    ##            vars   n   mean    sd median trimmed   mad  min    max  range skew
+    ## address.x*    1 200 100.50 57.88 100.50  100.50 74.13 1.00 200.00 199.00 0.00
+    ## closest       2 200   5.79  8.83   3.37    3.88  4.06 0.02  60.58  60.57 3.37
+    ##            kurtosis   se
+    ## address.x*    -1.22 4.09
+    ## closest       13.53 0.62
+
+### Exercise 11
+
+For California, Dennys and La Quintas do not appear to be as close to
+each other as they do for Texas, a state with a similar number of
+establishments (which serves as a sort of “control” here).
+
+The average minimum distance between establishments 22.08, and the SD =
+33.05. Again, the distribution is heavily skewed, but descriptively, I’m
+not sure that it’s any more skewed than Texas.
+
+``` r
+#filtering for Dennys & La Quinta CA locations
+
+dn_ca <- dn %>%
+  filter(state == "CA")
+
+lq_ca <- lq %>%
+  filter(state == "CA")
+
+#join datasets so that both info is in one file
+
+dn_lq_ca <- full_join(dn_ca, lq_ca, by = "state")
+
+#create new variable "distance"
+
+dn_lq_ca <- dn_lq_ca %>%
+  mutate(distance = haversine(dn_lq_ca$longitude.x, dn_lq_ca$latitude.x, dn_lq_ca$longitude.y, dn_lq_ca$latitude.y))
+
+#calculate minimum distance for each location
+
+dn_lq_ca_mindist <- dn_lq_ca %>%
+  group_by(address.x) %>%
+  summarize(closest = min(distance))
+
+#visualize and summarize minimum distance between Dennys/La Quinta locations
+
+ggplot(data = dn_lq_ca_mindist,
+       mapping = aes(x = closest)) +
+  geom_density() + 
+  labs(x = "Distance to Closest La Quinta (km)", y = "Frequency (%)")
+```
+
+![](lab-05_files/figure-gfm/min-distance-CA-1.png)<!-- -->
+
+``` r
+summary(dn_lq_ca_mindist, closest)
+```
+
+    ##   address.x            closest       
+    ##  Length:403         Min.   :  0.016  
+    ##  Class :character   1st Qu.:  5.767  
+    ##  Mode  :character   Median : 11.897  
+    ##                     Mean   : 22.083  
+    ##                     3rd Qu.: 22.796  
+    ##                     Max.   :253.462
+
+``` r
+describe(dn_lq_ca_mindist)
+```
+
+    ##            vars   n   mean     sd median trimmed    mad  min    max  range skew
+    ## address.x*    1 403 202.00 116.48  202.0  202.00 149.74 1.00 403.00 402.00 0.00
+    ## closest       2 403  22.08  33.05   11.9   14.65  10.77 0.02 253.46 253.45 3.55
+    ##            kurtosis   se
+    ## address.x*    -1.21 5.80
+    ## closest       15.50 1.65
+
+### Exercise 12
+
+Of the states I examined, the one that seems to most reflect Mitch
+Hedgberg’s joke is Texas. While Alaska has marginally closer minimum
+distances, there are only 3 datapoints there to examine. In Texas, there
+200 values to examine – which gives me greater confidence when
+concluding that his joke is pretty accurate.
